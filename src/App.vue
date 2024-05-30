@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PetList from './components/PetList.vue';
+import PetList from './components/InfinteQuery.vue';
 </script>
 
 <template>

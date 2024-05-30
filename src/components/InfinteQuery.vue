@@ -5,7 +5,9 @@
         {{ item.id + item.name }}
     </div>
   </div>
-  <button v-if="!isPending" class="btn" @click="goToNextPage">前往下一页</button>
+  <button class="btn" :style="{
+    cursor: disableBtn ? 'not-allowed' : 'pointer'
+  }" @click="goToNextPage">前往下一页</button>
 </template>
 
 <script setup lang='ts'>
@@ -15,23 +17,21 @@ import { computed } from 'vue';
 
 const getPetList = async ({
     pageParam = 1
-}) => {
-    const res = await ajaxGetPetList(pageParam, 10)
-    console.log('!=====res', res)
-    return res
-}
+}) => await ajaxGetPetList(pageParam, 10)
+
+const disableBtn = computed(() => !hasNextPage || isFetchingNextPage)
 
 const computedPets = computed(() => data.value?.pages.reduce((prev, cur) => [...prev, ...cur.pets], []))
 
-const { data, isPending, fetchNextPage } = useInfiniteQuery({
+const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['keys'],
     queryFn: getPetList,
     initialPageParam: 1,
     getNextPageParam: (lastPage: any) => {
-        // return lastPage.pagination.page > 10 ? undefined : lastPage.pagination.page + 1
-        return lastPage.pagination.page + 1
+        return lastPage.pagination.page > 10 ? undefined : lastPage.pagination.page + 1
     },
-    refetchOnMount: false
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
 })
 
 const goToNextPage = () => {
